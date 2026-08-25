@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicio Motriz, S.A. - Control del Taller</title>
+  <style>
+    :root {
+      --primary: #1e293b;
+      --primary-accent: #2563eb;
+      --secondary: #0f172a;
+      --accent-orange: #f97316;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--accent-orange);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .app-header h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .app-header p {
+      margin: 5px 0 0;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border-color);
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-top: 0;
+      font-size: 22px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h3 {
+      color: var(--primary-accent);
+      font-size: 16px;
+      margin: 15px 0 10px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 13px;
+      display: inline-block;
+      border: 1px solid #bae6fd;
+    }
+
+    .hidden { display: none !important; }
+
+    .form-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .form-control {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #f8fafc;
+      font-size: 14px;
+      color: var(--text-dark);
+      transition: all 0.2s ease;
+    }
+
+    input[readonly], select:disabled {
+      background-color: #e2e8f0;
+      cursor: not-allowed;
+      color: #64748b;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-accent);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary { background-color: var(--primary-accent); color: white; }
+    .btn-success { background-color: var(--success); color: white; }
+    .btn-warning { background-color: var(--accent-orange); color: white; }
+    .btn-danger { background-color: var(--danger); color: white; }
+    .btn-secondary { background-color: #64748b; color: white; }
+    .btn-purple { background-color: var(--purple); color: white; }
+    .btn-info { background-color: #17a2b8; color: white; }
+
+    .btn-menu {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 12px;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    tr:hover { background-color: #f8fafc; }
+
+    .login-card {
+      max-width: 400px;
+      margin: 40px auto;
+    }
+
+    .ficha-detalle {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .ficha-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .ficha-item {
+      background: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .ficha-item strong {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .ficha-box {
+      background: white;
+      padding: 12px 15px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+    }
+
+    /* --- ESTILOS PARA IMPRESIÓN --- */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #seccion-detalle-orden, #seccion-detalle-orden * {
+        visibility: visible;
+      }
+      #seccion-detalle-orden {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #seccion-detalle-orden button {
+        display: none !important;
+      }
+      .container {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>🚘 Servicio Motriz, S.A.</h1>
+    <p>3 Av. 12-23 Zona 9 - Tel: 2243-5667</p>
+  </header>
+
+  <div class="container">
+
+    <!-- 0. PANTALLA DE CONFIGURACIÓN INICIAL (DUEÑO) -->
+    <div id="seccion-setup" class="login-card hidden">
+      <h2>Bienvenido al Sistema</h2>
+      <p style="text-align:center; font-size:14px; color:var(--text-muted); margin-bottom:20px;">No se detectaron usuarios en la base de datos. Por favor, crea la cuenta del <b>Administrador Principal (Dueño)</b> para comenzar.</p>
+      <form id="formSetup">
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label>Nombre de Usuario</label>
+          <input type="text" id="setup_user" required>
+        </div>
+        <div class="form-control" style="margin-bottom: 20px;">
+          <label>Contraseña</label>
+          <input type="password" id="setup_pass" required>
+        </div>
+        <button type="submit" class="btn-success" style="width: 100%;">Crear y Configurar Sistema</button>
+      </form>
+    </div>
+
+    <!-- 1. PANTALLA DE LOGIN NORMAL -->
+    <div id="seccion-login" class="login-card hidden">
+      <h2>Iniciar Sesión</h2>
+      <form id="formLogin">
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label>Usuario</label>
+          <input type="text" id="user" required>
+        </div>
+        <div class="form-control" style="margin-bottom: 20px;">
+          <label>Contraseña</label>
+          <input type="password" id="pass" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Ingresar al Sistema</button>
+      </form>
+    </div>
+
+    <!-- 2. PANEL PRINCIPAL -->
+    <div id="seccion-menu" class="hidden">
+      <div style="text-align: right; margin-bottom: 15px;">
+        <span class="user-badge">👤 Perfil: <span id="lblPerfil"></span></span>
+      </div>
+      <h2>Panel de Control</h2>
+      
+      <button class="btn-menu btn-success" onclick="prepararNuevaOrden()">📋 NUEVA ORDEN DE TRABAJO</button>
+      <button class="btn-menu btn-primary" onclick="cargarServicios()">🚗 VER SERVICIOS / HISTORIAL</button>
+      <button class="btn-menu btn-warning" onclick="cargarVistaMecanicos()">👨‍🔧 VER MECÁNICOS Y PERSONAL</button>
+      
+      <button class="btn-menu btn-purple solo-dueno" onclick="prepararNuevoUsuario()">🔐 CREAR NUEVO USUARIO (PERSONAL)</button>
+      <button class="btn-menu btn-info" onclick="prepararPerfil()">⚙️ MI PERFIL</button>
+      
+      <button onclick="cerrarSesion()" class="btn-danger" style="width: 100%; margin-top: 15px;">Cerrar Sesión</button>
+    </div>
+
+    <!-- 3. FORMULARIO ORDEN DE TRABAJO -->
+    <div id="seccion-registro" class="hidden">
+      <h2>Nueva Orden de Trabajo</h2>
+      <form id="formOrden">
+        
+        <h3>👤 DATOS DEL CLIENTE</h3>
+        <div class="form-group">
+          <div class="form-control">
+            <label>Fecha de Ingreso (Automática)</label>
+            <input type="date" id="fecha" readonly required>
+          </div>
+          <div class="form-control">
+            <label>Nombre del Cliente</label>
+            <input type="text" id="nombre_cliente" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-control">
+            <label>NIT</label>
+            <input type="text" id="nit" required>
+          </div>
+          <div class="form-control">
+            <label>Teléfono</label>
+            <input type="text" id="telefono" required>
+          </div>
+        </div>
+
+        <h3>🚘 DATOS DEL VEHÍCULO</h3>
+        <div class="form-group">
+          <div class="form-control">
+            <label>Placa</label>
+            <input type="text" id="placa" required>
+          </div>
+          <div class="form-control">
+            <label>Marca</label>
+            <input type="text" id="marca" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-control">
+            <label>Modelo (Año)</label>
+            <input type="text" id="modelo" required>
+          </div>
+          <div class="form-control">
+            <label>Color</label>
+            <input type="text" id="color" required>
+          </div>
+        </div>
+        
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label><b>Mecánico Responsable Asignado</b></label>
+          <select id="mecanico" required>
+            <!-- Se carga dinámicamente según el rol -->
+          </select>
+        </div>
+
+        <h3>🛠️ DETALLES E INVENTARIO DE INGRESO</h3>
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label>Accesorios dejados en el vehículo</label>
+          <textarea id="accesorios" rows="3" required></textarea>
+        </div>
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label>Fallas Reportadas por el Cliente</label>
+          <textarea id="fallas" rows="3" required></textarea>
+        </div>
+        <div class="form-control" style="margin-bottom: 20px;">
+          <label>Observaciones Adicionales (Opcional)</label>
+          <textarea id="observaciones" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn-success" style="width: 100%;">💾 Guardar Orden de Trabajo</button>
+        <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="width: 100%; margin-top: 10px;">← Regresar al Menú</button>
+      </form>
+    </div>
+
+    <!-- 4. VISTA DE MECÁNICOS (SOLO LECTURA) -->
+    <div id="seccion-mecanicos" class="hidden">
+      <h2>Personal Registrado en el Taller</h2>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre Completo</th>
+              <th>Especialidad</th>
+              <th>Teléfono</th>
+              <th>Usuario (Sistema)</th>
+            </tr>
+          </thead>
+          <tbody id="tablaMecanicos"></tbody>
+        </table>
+      </div>
+      <br>
+      <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')">← Regresar al Menú</button>
+    </div>
+
+    <!-- 5. CREACIÓN UNIFICADA DE USUARIO Y TRABAJADOR (SOLO DUEÑO) -->
+    <div id="seccion-usuarios" class="hidden">
+      <h2>Registrar Nuevo Empleado (Usuario y Perfil)</h2>
+      <form id="formUsuario" autocomplete="off" class="ficha-detalle">
+        
+        <h3>👤 Datos Personales</h3>
+        <div class="form-group">
+          <div class="form-control">
+            <label>Nombre Completo</label>
+            <input type="text" id="nuevo_nombre" required>
+          </div>
+          <div class="form-control">
+            <label>Especialidad</label>
+            <input type="text" id="nuevo_especialidad" required>
+          </div>
+        </div>
+        <div class="form-control" style="margin-bottom: 15px;">
+          <label>Teléfono de Contacto</label>
+          <input type="text" id="nuevo_telefono" required>
+        </div>
+
+        <h3>🔑 Credenciales de Acceso</h3>
+        <div class="form-group">
+          <div class="form-control">
+            <label>Nombre de Usuario</label>
+            <input type="text" id="nuevo_user" autocomplete="off" required>
+          </div>
+          <div class="form-control">
+            <label>Contraseña</label>
+            <input type="password" id="nuevo_pass" autocomplete="new-password" required>
+          </div>
+        </div>
+        <div class="form-control" style="margin-bottom: 20px;">
+          <label>Rol en el Taller</label>
+          <select id="nuevo_rol" required>
+            <option value="Trabajador">Trabajador / Recepción / Mecánico</option>
+            <option value="Dueño">Dueño / Administrador</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-purple" style="width: 100%;">Crear Perfil Completo</button>
+        <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="width: 100%; margin-top: 10px;">← Regresar al Menú</button>
+      </form>
+    </div>
+
+    <!-- 6. TABLA DE SERVICIOS REGISTRADOS -->
+    <div id="seccion-servicios" class="hidden">
+      <h2>Historial de Órdenes y Servicios</h2>
+      <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="margin-bottom: 15px;">← Regresar al Menú</button>
+      <button type="button" class="btn-success" onclick="exportarCSV()" style="margin-bottom: 15px; margin-left: 10px;">📊 Exportar a Excel (CSV)</button>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>No. Orden</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Vehículo</th>
+              <th>Mecánico</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCuerpo"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. VISTA DETALLADA DE UNA ORDEN -->
+    <div id="seccion-detalle-orden" class="hidden">
+      <h2>Ficha Completa de Orden de Trabajo #<span id="det-id"></span></h2>
+      
+      <div class="ficha-detalle">
+        <h3>👤 Datos del Cliente</h3>
+        <div class="ficha-grid">
+          <div class="ficha-item"><strong>Fecha de Ingreso</strong><span id="det-fecha"></span></div>
+          <div class="ficha-item"><strong>Nombre Cliente</strong><span id="det-cliente"></span></div>
+          <div class="ficha-item"><strong>NIT</strong><span id="det-nit"></span></div>
+          <div class="ficha-item"><strong>Teléfono</strong><span id="det-telefono"></span></div>
+        </div>
+
+        <h3>🚘 Datos del Vehículo y Técnico</h3>
+        <div class="ficha-grid">
+          <div class="ficha-item"><strong>Placa</strong><span id="det-placa"></span></div>
+          <div class="ficha-item"><strong>Marca / Modelo</strong><span id="det-vehiculo"></span></div>
+          <div class="ficha-item"><strong>Color</strong><span id="det-color"></span></div>
+          <div class="ficha-item"><strong>Mecánico Asignado</strong><span id="det-mecanico"></span></div>
+        </div>
+
+        <h3>🛠️ Reporte Técnico de Recepción</h3>
+        <div class="ficha-box">
+          <strong style="color:var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">ACCESORIOS DEJADOS DENTRO DEL VEHÍCULO:</strong>
+          <div id="det-accesorios"></div>
+        </div>
+        <div class="ficha-box">
+          <strong style="color:var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">FALLAS REPORTADAS POR EL PROPIETARIO:</strong>
+          <div id="det-fallas"></div>
+        </div>
+        <div class="ficha-box">
+          <strong style="color:var(--text-muted); font-size:12px; display:block; margin-bottom:5px;">OBSERVACIONES ADICIONALES:</strong>
+          <div id="det-observaciones"></div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-success" onclick="imprimirOrden()" style="width: 100%; margin-bottom: 10px;">🖨️ Imprimir Ficha de Orden</button>
+      <button type="button" class="btn-primary" onclick="mostrarSeccion('seccion-servicios')" style="width: 100%;">← Volver al Historial de Servicios</button>
+    </div>
+
+    <!-- 8. SECCIÓN MI PERFIL -->
+    <div id="seccion-perfil" class="hidden login-card" style="max-width: 500px;">
+      <h2>Mi Perfil de Usuario</h2>
+      
+      <!-- VISTA DE DATOS DEL USUARIO -->
+      <div id="perfil-datos" class="ficha-detalle">
+        <div class="ficha-grid">
+          <div class="ficha-item"><strong>Nombre Completo</strong><span id="vp-nombre"></span></div>
+          <div class="ficha-item"><strong>Usuario (Sistema)</strong><span id="vp-user"></span></div>
+          <div class="ficha-item"><strong>Rol</strong><span id="vp-rol"></span></div>
+          <div class="ficha-item"><strong>Especialidad</strong><span id="vp-especialidad"></span></div>
+          <div class="ficha-item" style="grid-column: span 2;"><strong>Teléfono</strong><span id="vp-telefono"></span></div>
+        </div>
+        <button type="button" class="btn-warning" onclick="mostrarFormularioPassword()" style="width: 100%; margin-top: 15px;">🔑 Cambiar Contraseña</button>
+        <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="width: 100%; margin-top: 10px;">← Regresar al Menú</button>
+      </div>
+
+      <!-- PASO 1: FORMULARIO PARA VERIFICAR CREDENCIALES -->
+      <div id="perfil-form-verify" class="hidden">
+        <p style="text-align:center; font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+          Por seguridad, ingresa tus credenciales actuales para autorizar el cambio.
+        </p>
+        <form id="formVerify" autocomplete="off">
+          <div class="form-control" style="margin-bottom: 15px;">
+            <label>Tu Usuario Actual</label>
+            <input type="text" id="perfil_user_verify" required>
+          </div>
+          <div class="form-control" style="margin-bottom: 20px;">
+            <label>Contraseña Actual</label>
+            <input type="password" id="perfil_pass_actual" required>
+          </div>
+          
+          <button type="submit" class="btn-warning" style="width: 100%;">🔍 Verificar Identidad</button>
+          <button type="button" class="btn-secondary" onclick="prepararPerfil()" style="width: 100%; margin-top: 10px;">Cancelar</button>
+        </form>
+      </div>
+
+      <!-- PASO 2: FORMULARIO PARA NUEVA CONTRASEÑA -->
+      <div id="perfil-form-update" class="hidden">
+        <p style="text-align:center; font-size:13px; color:var(--success); margin-bottom:20px; font-weight:bold;">
+          ✅ Identidad verificada. Ahora puedes ingresar tu nueva contraseña.
+        </p>
+        <form id="formUpdatePass" autocomplete="off">
+          <div class="form-control" style="margin-bottom: 15px;">
+            <label>Nueva Contraseña</label>
+            <input type="password" id="perfil_pass_nueva" autocomplete="new-password" required>
+          </div>
+          <div class="form-control" style="margin-bottom: 20px;">
+            <label>Confirmar Nueva Contraseña</label>
+            <input type="password" id="perfil_pass_confirm" autocomplete="new-password" required>
+          </div>
+          
+          <button type="submit" class="btn-info" style="width: 100%;">💾 Guardar Nueva Contraseña</button>
+          <button type="button" class="btn-secondary" onclick="prepararPerfil()" style="width: 100%; margin-top: 10px;">Cancelar</button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let usuarioActual = null;
+    let listaOrdenesGuardadas = [];
+
+    function mostrarSeccion(id) {
+      ['seccion-setup', 'seccion-login', 'seccion-menu', 'seccion-registro', 'seccion-mecanicos', 'seccion-usuarios', 'seccion-servicios', 'seccion-detalle-orden', 'seccion-perfil'].forEach(s => {
+        document.getElementById(s).classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    // Al cargar la página, comprobar si hay usuarios en la base de datos
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/setup/check');
+        const data = await res.json();
+        if (data.setupNeeded) {
+          mostrarSeccion('seccion-setup');
+        } else {
+          mostrarSeccion('seccion-login');
+        }
+      } catch (e) {
+        console.error("Error comprobando el setup:", e);
+      }
+    });
+
+    // Evento de Configuración Inicial (Primer Admin)
+    document.getElementById('formSetup').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/setup', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: document.getElementById('setup_user').value,
+          password: document.getElementById('setup_pass').value
+        })
+      });
+      const data = await res.json();
+      if(data.exito) {
+        alert(data.mensaje);
+        document.getElementById('formSetup').reset();
+        mostrarSeccion('seccion-login');
+      } else {
+        alert(data.mensaje);
+      }
+    });
+
+    // Login Normal
+    document.getElementById('formLogin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username: document.getElementById('user').value,
+          password: document.getElementById('pass').value
+        })
+      });
+      const data = await res.json();
+      if(data.exito) {
+        usuarioActual = data.usuario;
+        document.getElementById('lblPerfil').innerText = `${usuarioActual.username} (${usuarioActual.rol})`;
+        
+        const elementosDueno = document.querySelectorAll('.solo-dueno');
+        elementosDueno.forEach(elem => {
+          elem.style.display = (usuarioActual.rol === 'Dueño') ? 'table-cell' : 'none';
+          if(elem.tagName !== 'TH' && elem.tagName !== 'TD') {
+            elem.style.display = (usuarioActual.rol === 'Dueño') ? 'block' : 'none';
+          }
+        });
+
+        mostrarSeccion('seccion-menu');
+      } else {
+        alert(data.mensaje);
+      }
+    });
+
+    function prepararNuevoUsuario() {
+      document.getElementById('formUsuario').reset();
+      mostrarSeccion('seccion-usuarios');
+    }
+
+    // Mostrar datos del perfil (Vista Principal)
+    async function prepararPerfil() {
+      document.getElementById('perfil-datos').classList.remove('hidden');
+      document.getElementById('perfil-form-verify').classList.add('hidden');
+      document.getElementById('perfil-form-update').classList.add('hidden');
+      
+      const res = await fetch('/api/mecanicos');
+      const mecanicos = await res.json();
+      const miPerfil = mecanicos.find(m => m.username === usuarioActual.username);
+
+      document.getElementById('vp-user').innerText = usuarioActual.username;
+      document.getElementById('vp-rol').innerText = usuarioActual.rol;
+      
+      if (miPerfil) {
+        document.getElementById('vp-nombre').innerText = miPerfil.nombre;
+        document.getElementById('vp-especialidad').innerText = miPerfil.especialidad;
+        document.getElementById('vp-telefono').innerText = miPerfil.telefono || 'N/A';
+      } else {
+        document.getElementById('vp-nombre').innerText = 'Admin Principal';
+        document.getElementById('vp-especialidad').innerText = 'Administración';
+        document.getElementById('vp-telefono').innerText = 'N/A';
+      }
+      mostrarSeccion('seccion-perfil');
+    }
+
+    // Mostrar Paso 1 (Verificación)
+    function mostrarFormularioPassword() {
+      document.getElementById('perfil-datos').classList.add('hidden');
+      document.getElementById('perfil-form-verify').classList.remove('hidden');
+      document.getElementById('perfil-form-update').classList.add('hidden');
+      document.getElementById('formVerify').reset(); 
+      document.getElementById('formUpdatePass').reset();
+    }
+
+    // EVENTO PASO 1: Verificar Credenciales
+    document.getElementById('formVerify').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userVerify = document.getElementById('perfil_user_verify').value;
+      const passActual = document.getElementById('perfil_pass_actual').value;
+
+      const resLogin = await fetch('/api/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: userVerify, password: passActual })
+      });
+      const dataLogin = await resLogin.json();
+
+      if (!dataLogin.exito || dataLogin.usuario.id !== usuarioActual.id) {
+        alert("❌ Error: El usuario o la contraseña actual son incorrectos.");
+        return;
+      }
+
+      // Si es correcto, ocultar verificación y mostrar formulario de nueva contraseña
+      document.getElementById('perfil-form-verify').classList.add('hidden');
+      document.getElementById('perfil-form-update').classList.remove('hidden');
+    });
+
+    // EVENTO PASO 2: Guardar Nueva Contraseña
+    document.getElementById('formUpdatePass').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const passNueva = document.getElementById('perfil_pass_nueva').value;
+      const passConfirm = document.getElementById('perfil_pass_confirm').value;
+
+      if (passNueva !== passConfirm) {
+        alert("⚠️ Error: Las contraseñas nuevas no coinciden.");
+        return;
+      }
+
+      const resUpdate = await fetch('/api/perfil', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: usuarioActual.id,
+          newPassword: passNueva
+        })
+      });
+      const dataUpdate = await resUpdate.json();
+      
+      alert(dataUpdate.mensaje);
+      if (dataUpdate.exito) {
+        prepararPerfil(); // Regresa a los datos del perfil
+      }
+    });
+
+    // Preparar Select de Mecánicos en la Orden
+    async function prepararNuevaOrden() {
+      document.getElementById('formOrden').reset();
+      
+      const hoy = new Date().toISOString().split('T')[0];
+      document.getElementById('fecha').value = hoy;
+
+      const res = await fetch('/api/mecanicos');
+      const mecanicos = await res.json();
+      const select = document.getElementById('mecanico');
+      
+      select.innerHTML = '';
+      select.disabled = false; 
+
+      if (usuarioActual && usuarioActual.rol === 'Dueño') {
+        select.innerHTML = '<option value="">-- Seleccione un Mecánico --</option>';
+        mecanicos.forEach(m => {
+          select.innerHTML += `<option value="${m.nombre}">${m.nombre} (${m.especialidad})</option>`;
+        });
+      } else {
+        select.disabled = true;
+        const miPerfil = mecanicos.find(m => m.username === usuarioActual.username);
+        
+        if (miPerfil) {
+          select.innerHTML = `<option value="${miPerfil.nombre}">${miPerfil.nombre} (${miPerfil.especialidad})</option>`;
+        } else {
+          select.innerHTML = `<option value="${usuarioActual.username}">${usuarioActual.username} (Recepción)</option>`;
+        }
+      }
+
+      mostrarSeccion('seccion-registro');
+    }
+
+    // Tabla de Mecánicos Limpia (Sin Contraseñas)
+    async function cargarVistaMecanicos() {
+      const res = await fetch('/api/mecanicos');
+      const mecanicos = await res.json();
+      const tbody = document.getElementById('tablaMecanicos');
+      tbody.innerHTML = '';
+      
+      mecanicos.forEach((m) => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#${m.id}</strong></td>
+            <td>${m.nombre}</td>
+            <td><span style="background:#e2e8f0; padding:3px 8px; border-radius:12px; font-size:12px;">${m.especialidad}</span></td>
+            <td>${m.telefono || 'N/A'}</td>
+            <td>${m.username || 'Sin cuenta enlazada'}</td>
+          </tr>
+        `;
+      });
+
+      mostrarSeccion('seccion-mecanicos');
+    }
+
+    // Evento unificado para crear Usuario + Perfil de Trabajador
+    document.getElementById('formUsuario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/usuarios', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          nombre: document.getElementById('nuevo_nombre').value,
+          especialidad: document.getElementById('nuevo_especialidad').value,
+          telefono: document.getElementById('nuevo_telefono').value,
+          username: document.getElementById('nuevo_user').value,
+          password: document.getElementById('nuevo_pass').value,
+          rol: document.getElementById('nuevo_rol').value
+        })
+      });
+      const data = await res.json();
+      if(data.exito) {
+        alert(data.mensaje);
+        document.getElementById('formUsuario').reset();
+        mostrarSeccion('seccion-menu');
+      } else {
+        alert(data.error || 'Error al crear el perfil');
+      }
+    });
+
+    // Guardar Orden
+    document.getElementById('formOrden').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orden = {
+        fecha: document.getElementById('fecha').value,
+        nombre_cliente: document.getElementById('nombre_cliente').value,
+        nit: document.getElementById('nit').value,
+        telefono: document.getElementById('telefono').value,
+        placa: document.getElementById('placa').value,
+        marca: document.getElementById('marca').value,
+        modelo: document.getElementById('modelo').value,
+        color: document.getElementById('color').value,
+        mecanico: document.getElementById('mecanico').value,
+        accesorios: document.getElementById('accesorios').value,
+        fallas: document.getElementById('fallas').value,
+        observaciones: document.getElementById('observaciones').value
+      };
+
+      const res = await fetch('/api/ordenes', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(orden)
+      });
+      const data = await res.json();
+      if(data.exito) {
+        alert(`${data.mensaje} (Orden No. ${data.id_orden})`);
+        document.getElementById('formOrden').reset();
+        mostrarSeccion('seccion-menu');
+      }
+    });
+
+    // Cargar Servicios
+    async function cargarServicios() {
+      const res = await fetch('/api/ordenes');
+      listaOrdenesGuardadas = await res.json();
+      const tbody = document.getElementById('tablaCuerpo');
+      tbody.innerHTML = '';
+
+      listaOrdenesGuardadas.forEach(o => {
+        tbody.innerHTML += `
+          <tr>
+            <td><strong>#${o.id}</strong></td>
+            <td>${o.fecha}</td>
+            <td>${o.nombre_cliente}</td>
+            <td><strong>${o.placa}</strong> <br><small style="color:#64748b;">${o.marca} ${o.modelo}</small></td>
+            <td>${o.mecanico}</td>
+            <td>
+              <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="verDetalleOrden(${o.id})">👁️ Ver Detalle</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      mostrarSeccion('seccion-servicios');
+    }
+
+    // Exportar CSV
+    function exportarCSV() {
+      if (listaOrdenesGuardadas.length === 0) {
+        alert("No hay órdenes registradas para exportar.");
+        return;
+      }
+
+      let csvContent = "No. Orden,Fecha,Cliente,NIT,Telefono,Placa,Marca,Modelo,Color,Mecanico\n";
+
+      listaOrdenesGuardadas.forEach(o => {
+        let fila = [
+          o.id,
+          o.fecha,
+          `"${o.nombre_cliente || ''}"`,
+          `"${o.nit || ''}"`,
+          `"${o.telefono || ''}"`,
+          `"${o.placa || ''}"`,
+          `"${o.marca || ''}"`,
+          `"${o.modelo || ''}"`,
+          `"${o.color || ''}"`,
+          `"${o.mecanico || ''}"`
+        ];
+        csvContent += fila.join(",") + "\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "Historial_Servicio_Motriz.csv");
+      document.body.appendChild(link);
+      
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Ficha de Orden
+    function verDetalleOrden(idOrden) {
+      const orden = listaOrdenesGuardadas.find(o => o.id === idOrden);
+      if(!orden) return;
+
+      document.getElementById('det-id').innerText = orden.id;
+      document.getElementById('det-fecha').innerText = orden.fecha || 'N/A';
+      document.getElementById('det-cliente').innerText = orden.nombre_cliente || 'N/A';
+      document.getElementById('det-nit').innerText = orden.nit || 'N/A';
+      document.getElementById('det-telefono').innerText = orden.telefono || 'N/A';
+      
+      document.getElementById('det-placa').innerText = orden.placa || 'N/A';
+      document.getElementById('det-vehiculo').innerText = `${orden.marca} (${orden.modelo})`;
+      document.getElementById('det-color').innerText = orden.color || 'N/A';
+      document.getElementById('det-mecanico').innerText = orden.mecanico || 'Sin asignar';
+
+      document.getElementById('det-accesorios').innerText = orden.accesorios || 'Ninguno registrado';
+      document.getElementById('det-fallas').innerText = orden.fallas || 'Sin descripción';
+      document.getElementById('det-observaciones').innerText = orden.observaciones || 'Ninguna observación registrada';
+
+      mostrarSeccion('seccion-detalle-orden');
+    }
+
+    // Imprimir
+    function imprimirOrden() {
+      window.print();
+    }
+
+    function cerrarSesion() {
+      usuarioActual = null;
+      document.getElementById('formLogin').reset();
+      
+      fetch('/api/setup/check')
+        .then(res => res.json())
+        .then(data => {
+          if (data.setupNeeded) mostrarSeccion('seccion-setup');
+          else mostrarSeccion('seccion-login');
+        });
+    }
+  </script>
+</body>
+</html>
