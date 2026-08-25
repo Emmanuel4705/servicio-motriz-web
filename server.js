@@ -11,10 +11,12 @@ const saltRounds = parseInt(process.env.NIVEL_ENCRIPTACION) || 10;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Conexión a la base de datos temporal (Modificada para que funcione en Vercel)
-const db = new sqlite3.Database('/tmp/servicio_motriz.db', (err) => {
+const fs = require('fs');
+const dbFile = '/tmp/servicio_motriz.db';
+
+const db = new sqlite3.Database(dbFile, (err) => {
   if (err) console.error('Error al conectar la BD:', err.message);
-  else console.log('Conectado a la base de datos de Servicio Motriz.');
+  else console.log('Conectado a la base de datos temporal.');
 });
 
 // Inicialización de Tablas
