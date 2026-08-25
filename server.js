@@ -1,20 +1,18 @@
-require('dotenv').config(); // 1. Carga las variables secretas del archivo .env
+require('dotenv').config();
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const bcrypt = require('bcrypt'); // 2. Importa la herramienta de encriptación
+const bcrypt = require('bcrypt');
 
 const app = express();
-// 3. Usa el puerto de tu .env o el 3000 por defecto
 const PORT = process.env.PORT || 3000;
-// 4. Configura qué tan fuerte será la encriptación
 const saltRounds = parseInt(process.env.NIVEL_ENCRIPTACION) || 10;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Conexión a la base de datos
-const db = new sqlite3.Database('./servicio_motriz.db', (err) => {
+// Conexión a la base de datos temporal (Modificada para que funcione en Vercel)
+const db = new sqlite3.Database('/tmp/servicio_motriz.db', (err) => {
   if (err) console.error('Error al conectar la BD:', err.message);
   else console.log('Conectado a la base de datos de Servicio Motriz.');
 });
@@ -62,8 +60,8 @@ app.get('/api/setup/check', (req, res) => {
   });
 });
 
-// Endpoint: Crear el primer administrador (Dueño) - CON ENCRIPTACIÓN
-app.post('/api/setup', async (req, res) => { // <-- Se agregó async
+// Endpoint: Crear el primer administrador (Dueño)
+app.post('/api/setup', async (req, res) => {
   const { username, password } = req.body;
   
   db.get(`SELECT COUNT(*) as count FROM usuarios`, async (err, row) => {
@@ -71,7 +69,6 @@ app.post('/api/setup', async (req, res) => { // <-- Se agregó async
     if (row.count > 0) return res.status(403).json({ exito: false, mensaje: 'El sistema ya ha sido configurado.' });
     
     try {
-      // Encriptar la contraseña
       const hashedPassword = await bcrypt.hash(password, saltRounds);
       
       db.run(`INSERT INTO usuarios (username, password, rol) VALUES (?, ?, 'Dueño')`, [username, hashedPassword], function(err2) {
@@ -84,14 +81,13 @@ app.post('/api/setup', async (req, res) => { // <-- Se agregó async
   });
 });
 
-// Endpoint: Inicio de sesión - CON DESENCRIPTACIÓN
+// Endpoint: Inicio de sesión
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   
-  // Ahora buscamos solo el usuario, sin validar la contraseña en el SQL
   const sql = `SELECT id, username, password, rol FROM usuarios WHERE username = ?`;
   
-  db.get(sql, [username], async (err, row) => { // <-- Se agregó async
+  db.get(sql, [username], async (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
     
     if (!row) {
@@ -99,11 +95,10 @@ app.post('/api/login', (req, res) => {
     }
 
     try {
-      // Comparar la contraseña escrita con la encriptada
       const match = await bcrypt.compare(password, row.password);
       
       if (match) {
-        delete row.password; // Por seguridad, no enviamos la contraseña al HTML
+        delete row.password; 
         res.json({ exito: true, usuario: row, mensaje: 'Inicio de sesión correcto' });
       } else {
         res.json({ exito: false, mensaje: 'Usuario o contraseña incorrectos' });
@@ -114,8 +109,8 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Endpoint: Actualizar la contraseña del usuario activo - CON ENCRIPTACIÓN
-app.put('/api/perfil', async (req, res) => { // <-- Se agregó async
+// Endpoint: Actualizar la contraseña del usuario activo
+app.put('/api/perfil', async (req, res) => {
   const { id, newPassword } = req.body;
   
   try {
@@ -144,8 +139,8 @@ app.get('/api/mecanicos', (req, res) => {
   });
 });
 
-// Endpoint: Crear Trabajador + Usuario - CON ENCRIPTACIÓN
-app.post('/api/usuarios', async (req, res) => { // <-- Se agregó async
+// Endpoint: Crear Trabajador + Usuario
+app.post('/api/usuarios', async (req, res) => {
   const { nombre, especialidad, telefono, username, password, rol } = req.body;
 
   if (!username || !password || !rol || !nombre || !especialidad || !telefono) {
@@ -203,3 +198,6 @@ app.get('/api/ordenes', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
+// ¡MUY IMPORTANTE! Esta es la línea extra que permite a Vercel ejecutar tu código
+module.exports = app;
