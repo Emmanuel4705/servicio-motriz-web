@@ -195,9 +195,12 @@ app.get('/api/ordenes', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// Solo encendemos el puerto si estamos en tu computadora (desarrollo local)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  });
+}
 
-// ¡MUY IMPORTANTE! Esta es la línea extra que permite a Vercel ejecutar tu código
+// Exportamos la app para que Vercel la controle
 module.exports = app;
