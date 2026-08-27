@@ -1,4 +1,4 @@
-require('dotenv').config();
+rrequire('dotenv').config();
 const express = require('express');
 const sqlite3 = require('@libsql/sqlite3').verbose();
 const path = require('path');
@@ -11,14 +11,21 @@ const saltRounds = parseInt(process.env.NIVEL_ENCRIPTACION) || 10;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const fs = require('fs');
-const dbFile = '/tmp/servicio_motriz.db';
+// 1. Extraemos las variables
+const dbUrl = process.env.TURSO_DATABASE_URL;
+const dbToken = process.env.TURSO_AUTH_TOKEN;
 
-const urlConToken = `${process.env.TURSO_DATABASE_URL}?authToken=${process.env.TURSO_AUTH_TOKEN}`;
+// 2. Conectamos con el formato estricto de Vercel/Turso
+let conexionTurso = "";
+if (dbUrl && dbToken) {
+  conexionTurso = `${dbUrl}?authToken=${dbToken}`;
+} else {
+  console.error("ADVERTENCIA: Las variables de Turso no están cargando en Vercel.");
+}
 
-const db = new sqlite3.Database(urlConToken, (err) => {
+const db = new sqlite3.Database(conexionTurso, (err) => {
   if (err) console.error('Error al conectar a Turso:', err.message);
-  else console.log('Conectado exitosamente a la nube de Turso.');
+  else console.log('Conectado a la base de datos de Turso en la nube.');
 });
 
 // Inicialización de Tablas
