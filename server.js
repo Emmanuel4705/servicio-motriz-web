@@ -14,9 +14,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 const fs = require('fs');
 const dbFile = '/tmp/servicio_motriz.db';
 
-const db = new sqlite3.Database(process.env.TURSO_DATABASE_URL, {
-    authToken: process.env.TURSO_AUTH_TOKEN
-}, (err) => {
+const urlConToken = `${process.env.TURSO_DATABASE_URL}?authToken=${process.env.TURSO_AUTH_TOKEN}`;
+
+const db = new sqlite3.Database(urlConToken, (err) => {
   if (err) console.error('Error al conectar a Turso:', err.message);
   else console.log('Conectado exitosamente a la nube de Turso.');
 });
