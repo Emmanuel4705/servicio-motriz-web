@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('@libsql/sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcrypt');
 
@@ -14,9 +14,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 const fs = require('fs');
 const dbFile = '/tmp/servicio_motriz.db';
 
-const db = new sqlite3.Database(dbFile, (err) => {
-  if (err) console.error('Error al conectar la BD:', err.message);
-  else console.log('Conectado a la base de datos temporal.');
+const db = new sqlite3.Database(process.env.TURSO_DATABASE_URL, {
+    authToken: process.env.TURSO_AUTH_TOKEN
+}, (err) => {
+  if (err) console.error('Error al conectar a Turso:', err.message);
+  else console.log('Conectado exitosamente a la nube de Turso.');
 });
 
 // Inicialización de Tablas
