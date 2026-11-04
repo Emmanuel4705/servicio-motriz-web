@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Servicio Motriz, S.A. - Control del Taller</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary: #1e293b;
@@ -492,6 +493,14 @@
       <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="margin-bottom: 15px;">← Regresar al Menú</button>
       <button type="button" class="btn-success" onclick="exportarCSV()" style="margin-bottom: 15px; margin-left: 10px;">📊 Exportar a Excel (CSV)</button>
       
+      <!-- Gráfica de pastel: Vehículos asignados por mecánico -->
+      <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h3 style="justify-content: center; margin-top: 0;">📊 Distribución de Vehículos Asignados por Mecánico</h3>
+        <div style="position: relative; max-width: 360px; margin: 0 auto; min-height: 260px;">
+          <canvas id="graficaMecanicos"></canvas>
+        </div>
+      </div>
+      
       <div class="table-responsive">
         <table>
           <thead>
@@ -890,7 +899,69 @@
     });
 
     // Cargar Servicios
+    let chartMecanicosInstance = null;
+
+    async function renderizarGraficaMecanicos() {
+      try {
+        const res = await fetch('/api/grafica/vehiculos-mecanicos');
+        const datos = await res.json();
+        const canvas = document.getElementById('graficaMecanicos');
+        if (!canvas) return;
+
+        if (chartMecanicosInstance) {
+          chartMecanicosInstance.destroy();
+        }
+
+        const labels = datos.map(item => item.mecanico);
+        const totals = datos.map(item => item.total);
+
+        chartMecanicosInstance = new Chart(canvas, {
+          type: 'pie',
+          data: {
+            labels: labels.length > 0 ? labels : ['Sin datos'],
+            datasets: [{
+              data: totals.length > 0 ? totals : [0],
+              backgroundColor: [
+                '#2563eb',
+                '#f97316',
+                '#16a34a',
+                '#7c3aed',
+                '#06b6d4',
+                '#eab308',
+                '#ec4899',
+                '#64748b'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'bottom'
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const val = context.raw || 0;
+                    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                    return ` ${context.label}: ${val} vehículo(s) (${pct}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Error al renderizar gráfica de mecánicos:', err);
+      }
+    }
+
+    // Cargar Servicios
     async function cargarServicios() {
+      renderizarGraficaMecanicos();
       const res = await fetch('/api/ordenes');
       listaOrdenesGuardadas = await res.json();
       const tbody = document.getElementById('tablaCuerpo');

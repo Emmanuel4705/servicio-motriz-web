@@ -206,6 +206,20 @@ app.get('/api/ordenes', (req, res) => {
   });
 });
 
+// Endpoint: Conteo agrupado de vehículos por mecánico (Gráfica de pastel)
+app.get('/api/grafica/vehiculos-mecanicos', (req, res) => {
+  const sql = `
+    SELECT COALESCE(NULLIF(TRIM(mecanico), ''), 'Sin asignar') AS mecanico, COUNT(*) AS total
+    FROM ordenes
+    GROUP BY mecanico
+    ORDER BY total DESC
+  `;
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
 // Solo encendemos el puerto si estamos en tu computadora (desarrollo local)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
