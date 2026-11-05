@@ -62,6 +62,11 @@ db.serialize(() => {
     observaciones TEXT,
     estado TEXT DEFAULT 'Pendiente'
   )`);
+
+  // Migración automática: Agrega la columna estado si la tabla ya existía sin ella
+  db.run(`ALTER TABLE ordenes ADD COLUMN estado TEXT DEFAULT 'Pendiente'`, (err) => {
+    // Si la columna ya existe, SQLite arroja error (duplicate column name), el cual se ignora deliberadamente
+  });
 });
 
 // Endpoint: Verificar si es la primera vez que se abre el sistema
@@ -239,7 +244,11 @@ app.post('/api/ordenes/:id/entregar', (req, res) => {
 app.get('/api/ordenes', (req, res) => {
   db.all(`SELECT * FROM ordenes ORDER BY id DESC`, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
+    const ordenes = (rows || []).map(row => ({
+      ...row,
+      estado: row.estado || 'Pendiente'
+    }));
+    res.json(ordenes);
   });
 });
 
@@ -248,13 +257,24 @@ app.get('/api/grafica/vehiculos-mecanicos', (req, res) => {
   const sql = `
     SELECT COALESCE(NULLIF(TRIM(mecanico), ''), 'Sin asignar') AS mecanico, COUNT(*) AS total
     FROM ordenes
-    WHERE COALESCE(estado, 'Pendiente') != 'Entregado'
+    WHERE estado IS NULL OR estado != 'Entregado'
     GROUP BY mecanico
     ORDER BY total DESC
   `;
   db.all(sql, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
+    if (err) {
+      const sqlFallback = `
+        SELECT COALESCE(NULLIF(TRIM(mecanico), ''), 'Sin asignar') AS mecanico, COUNT(*) AS total
+        FROM ordenes
+        GROUP BY mecanico
+        ORDER BY total DESC
+      `;
+      return db.all(sqlFallback, [], (err2, rowsFallback) => {
+        if (err2) return res.status(500).json({ error: err2.message });
+        res.json(rowsFallback || []);
+      });
+    }
+    res.json(rows || []);
   });
 });
 
