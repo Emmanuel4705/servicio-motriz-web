@@ -260,28 +260,216 @@
       margin-bottom: 12px;
     }
 
+    /* --- PESTAÑAS Y BADGES --- */
+    .tabs-servicios {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn-tab {
+      background: #f1f5f9;
+      color: var(--text-dark);
+      border: 1px solid var(--border-color);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-tab:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+    }
+
+    .btn-tab.active {
+      background: var(--primary-accent);
+      color: white;
+      border-color: var(--primary-accent);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .badge-estado {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-pendiente {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-entregado {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    /* --- TICKET PARA CLIENTE --- */
+    #ticket-cliente-contenedor {
+      display: none;
+    }
+
+    .ticket-recibo {
+      background: #ffffff;
+      border: 2px dashed #94a3b8;
+      border-radius: 10px;
+      padding: 24px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #0f172a;
+      max-width: 440px;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .ticket-header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .ticket-header h2 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+      border-bottom: none;
+      padding-bottom: 0;
+      color: var(--primary);
+    }
+
+    .ticket-header p {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .ticket-tipo {
+      font-weight: 800;
+      font-size: 12px;
+      margin-top: 10px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--primary-accent);
+      background: #eff6ff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid #dbeafe;
+    }
+
+    .ticket-folio {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 10px 0 2px;
+    }
+
+    .ticket-divider {
+      border: none;
+      border-top: 1px dashed #cbd5e1;
+      margin: 12px 0;
+    }
+
+    .ticket-titulo-sec {
+      font-weight: 800;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .ticket-aviso {
+      background: #fef3c7;
+      border: 1px solid #fde047;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 12px;
+      margin-top: 15px;
+      text-align: center;
+      color: #854d0e;
+      line-height: 1.4;
+    }
+
+    .ticket-firmas {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+      margin-top: 40px;
+      text-align: center;
+      font-size: 11px;
+      color: #475569;
+    }
+
+    .ticket-firma-col {
+      flex: 1;
+    }
+
+    .linea-firma {
+      border-top: 1px solid #334155;
+      margin-bottom: 6px;
+    }
+
     /* --- ESTILOS PARA IMPRESIÓN --- */
     @media print {
       body * {
-        visibility: hidden;
+        visibility: hidden !important;
       }
-      #seccion-detalle-orden, #seccion-detalle-orden * {
-        visibility: visible;
+
+      /* Caso 1: Imprimir Ficha de Orden normal */
+      body:not(.imprimiendo-ticket) #seccion-detalle-orden,
+      body:not(.imprimiendo-ticket) #seccion-detalle-orden * {
+        visibility: visible !important;
       }
-      #seccion-detalle-orden {
+      body:not(.imprimiendo-ticket) #seccion-detalle-orden {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
         margin: 0;
         padding: 0;
+        display: block !important;
       }
-      #seccion-detalle-orden button {
+      body:not(.imprimiendo-ticket) #seccion-detalle-orden button {
         display: none !important;
       }
+
+      /* Caso 2: Imprimir Ticket para Cliente */
+      body.imprimiendo-ticket #ticket-cliente-contenedor,
+      body.imprimiendo-ticket #ticket-cliente-contenedor * {
+        visibility: visible !important;
+      }
+      body.imprimiendo-ticket #ticket-cliente-contenedor {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 20px;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 440px;
+        display: block !important;
+        padding: 0;
+      }
+      body.imprimiendo-ticket #ticket-cliente-contenedor button {
+        display: none !important;
+      }
+
       .container {
-        box-shadow: none;
-        border: none;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
     }
   </style>
@@ -501,6 +689,19 @@
         </div>
       </div>
       
+      <!-- Pestañas de Filtro: Pendientes vs Entregados -->
+      <div class="tabs-servicios">
+        <button type="button" id="tab-pendientes" class="btn-tab active" onclick="cambiarFiltroServicios('Pendiente')">
+          ⏳ Pendientes por Entregar (<span id="conteo-pendientes">0</span>)
+        </button>
+        <button type="button" id="tab-entregados" class="btn-tab" onclick="cambiarFiltroServicios('Entregado')">
+          ✅ Historial de Entregados (<span id="conteo-entregados">0</span>)
+        </button>
+        <button type="button" id="tab-todos" class="btn-tab" onclick="cambiarFiltroServicios('Todos')">
+          📋 Ver Todos (<span id="conteo-todos">0</span>)
+        </button>
+      </div>
+
       <div class="table-responsive">
         <table>
           <thead>
@@ -510,7 +711,8 @@
               <th>Cliente</th>
               <th>Vehículo</th>
               <th>Mecánico</th>
-              <th>Acción</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tablaCuerpo"></tbody>
@@ -520,7 +722,7 @@
 
     <!-- 7. VISTA DETALLADA DE UNA ORDEN -->
     <div id="seccion-detalle-orden" class="hidden">
-      <h2>Ficha Completa de Orden de Trabajo #<span id="det-id"></span></h2>
+      <h2>Ficha Completa de Orden de Trabajo #<span id="det-id"></span> <span id="det-badge-estado" style="font-size: 13px; vertical-align: middle; margin-left: 10px;"></span></h2>
       
       <div class="ficha-detalle">
         <h3>👤 Datos del Cliente</h3>
@@ -537,6 +739,7 @@
           <div class="ficha-item"><strong>Marca / Modelo</strong><span id="det-vehiculo"></span></div>
           <div class="ficha-item"><strong>Color</strong><span id="det-color"></span></div>
           <div class="ficha-item"><strong>Mecánico Asignado</strong><span id="det-mecanico"></span></div>
+          <div class="ficha-item" style="grid-column: span 2;"><strong>Estado</strong><span id="det-estado"></span></div>
         </div>
 
         <h3>🛠️ Reporte Técnico de Recepción</h3>
@@ -554,6 +757,7 @@
         </div>
       </div>
 
+      <button type="button" id="btn-entregar-detalle" class="btn-success" onclick="marcarDesdeDetalle()" style="width: 100%; margin-bottom: 10px;">Marcar como Entregado</button>
       <button type="button" class="btn-success" onclick="imprimirOrden()" style="width: 100%; margin-bottom: 10px;">🖨️ Imprimir Ficha de Orden</button>
       <button type="button" class="btn-primary" onclick="mostrarSeccion('seccion-servicios')" style="width: 100%;">← Volver al Historial de Servicios</button>
     </div>
@@ -959,15 +1163,66 @@
       }
     }
 
-    // Cargar Servicios
-    async function cargarServicios() {
-      renderizarGraficaMecanicos();
-      const res = await fetch('/api/ordenes');
-      listaOrdenesGuardadas = await res.json();
+    // Variables de estado para Servicios y Órdenes
+    let filtroServiciosActual = 'Pendiente';
+    let ordenActualSeleccionada = null;
+
+    // Cambiar pestaña / filtro entre Pendientes y Entregados
+    function cambiarFiltroServicios(filtro) {
+      filtroServiciosActual = filtro;
+      document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+      if (filtro === 'Pendiente') document.getElementById('tab-pendientes').classList.add('active');
+      else if (filtro === 'Entregado') document.getElementById('tab-entregados').classList.add('active');
+      else if (filtro === 'Todos') document.getElementById('tab-todos').classList.add('active');
+
+      renderizarTablaServicios();
+    }
+
+    // Renderizar la tabla de servicios según el filtro activo y actualizar contadores
+    function renderizarTablaServicios() {
       const tbody = document.getElementById('tablaCuerpo');
       tbody.innerHTML = '';
 
-      listaOrdenesGuardadas.forEach(o => {
+      const totalPendientes = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() !== 'entregado').length;
+      const totalEntregados = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() === 'entregado').length;
+      const totalTodos = listaOrdenesGuardadas.length;
+
+      document.getElementById('conteo-pendientes').innerText = totalPendientes;
+      document.getElementById('conteo-entregados').innerText = totalEntregados;
+      document.getElementById('conteo-todos').innerText = totalTodos;
+
+      let ordenesFiltradas = listaOrdenesGuardadas;
+      if (filtroServiciosActual === 'Pendiente') {
+        ordenesFiltradas = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() !== 'entregado');
+      } else if (filtroServiciosActual === 'Entregado') {
+        ordenesFiltradas = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() === 'entregado');
+      }
+
+      if (ordenesFiltradas.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 25px; color: var(--text-muted);">
+              ${filtroServiciosActual === 'Pendiente' 
+                ? '🎉 ¡Excelente! No hay vehículos pendientes por entregar actualmente.' 
+                : filtroServiciosActual === 'Entregado'
+                ? 'No hay registros en el historial de entregados.'
+                : 'No hay órdenes registradas.'}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      ordenesFiltradas.forEach(o => {
+        const esEntregado = (o.estado || 'Pendiente').toLowerCase() === 'entregado';
+        const badgeEstado = esEntregado
+          ? '<span class="badge-estado badge-entregado">✅ Entregado</span>'
+          : '<span class="badge-estado badge-pendiente">⏳ En Taller</span>';
+
+        const botonAccionEstado = esEntregado
+          ? `<button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 11px; margin-left: 4px;" disabled>✅ Entregado</button>`
+          : `<button type="button" class="btn-success" style="padding: 6px 10px; font-size: 11px; margin-left: 4px;" onclick="cambiarEstadoOrden(${o.id}, 'Entregado')">Marcar como Entregado</button>`;
+
         tbody.innerHTML += `
           <tr>
             <td><strong>#${o.id}</strong></td>
@@ -975,24 +1230,83 @@
             <td>${o.nombre_cliente}</td>
             <td><strong>${o.placa}</strong> <br><small style="color:#64748b;">${o.marca} ${o.modelo}</small></td>
             <td>${o.mecanico}</td>
-            <td>
+            <td>${badgeEstado}</td>
+            <td style="white-space: nowrap;">
               <button type="button" class="btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="verDetalleOrden(${o.id})">👁️ Ver Detalle</button>
+              ${botonAccionEstado}
             </td>
           </tr>
         `;
       });
-
-      mostrarSeccion('seccion-servicios');
     }
 
-    // Exportar CSV
+    // Cargar Servicios desde la API
+    async function cargarServicios() {
+      renderizarGraficaMecanicos();
+      try {
+        const res = await fetch('/api/ordenes');
+        listaOrdenesGuardadas = await res.json();
+        renderizarTablaServicios();
+        mostrarSeccion('seccion-servicios');
+      } catch (err) {
+        console.error('Error al cargar órdenes:', err);
+        alert('Error al obtener la lista de órdenes.');
+      }
+    }
+
+    // Cambiar Estado de la Orden (Entregado / Pendiente)
+    async function cambiarEstadoOrden(idOrden, nuevoEstado) {
+      const mensajeConfirmacion = nuevoEstado === 'Entregado'
+        ? `¿Confirmas que deseas marcar la Orden #${idOrden} como ENTREGADA?\n(El vehículo saldrá de la lista de pendientes)`
+        : `¿Deseas reabrir la Orden #${idOrden} y regresarla a PENDIENTE EN TALLER?`;
+
+      if (!confirm(mensajeConfirmacion)) return;
+
+      try {
+        const res = await fetch(`/api/ordenes/${idOrden}/estado`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estado: nuevoEstado })
+        });
+        const data = await res.json();
+
+        if (data.exito) {
+          // Actualizar en memoria local
+          const orden = listaOrdenesGuardadas.find(o => o.id === idOrden);
+          if (orden) orden.estado = nuevoEstado;
+          renderizarTablaServicios();
+          renderizarGraficaMecanicos();
+
+          // Si estamos en la vista de detalle, actualizar la vista
+          if (!document.getElementById('seccion-detalle-orden').classList.contains('hidden') && ordenActualSeleccionada && ordenActualSeleccionada.id === idOrden) {
+            ordenActualSeleccionada.estado = nuevoEstado;
+            poblarDetalleOrden(ordenActualSeleccionada);
+          }
+
+          alert(data.mensaje);
+        } else {
+          alert('Error: ' + (data.error || data.mensaje));
+        }
+      } catch (err) {
+        console.error('Error al actualizar el estado:', err);
+        alert('No se pudo conectar con el servidor.');
+      }
+    }
+
+    // Acción desde el botón de la ficha de detalle
+    function marcarDesdeDetalle() {
+      if (!ordenActualSeleccionada) return;
+      cambiarEstadoOrden(ordenActualSeleccionada.id, 'Entregado');
+    }
+
+    // Exportar CSV incluyendo Estado
     function exportarCSV() {
       if (listaOrdenesGuardadas.length === 0) {
         alert("No hay órdenes registradas para exportar.");
         return;
       }
 
-      let csvContent = "No. Orden,Fecha,Cliente,NIT,Telefono,Placa,Marca,Modelo,Color,Mecanico\n";
+      let csvContent = "No. Orden,Fecha,Cliente,NIT,Telefono,Placa,Marca,Modelo,Color,Mecanico,Estado\n";
 
       listaOrdenesGuardadas.forEach(o => {
         let fila = [
@@ -1005,7 +1319,8 @@
           `"${o.marca || ''}"`,
           `"${o.modelo || ''}"`,
           `"${o.color || ''}"`,
-          `"${o.mecanico || ''}"`
+          `"${o.mecanico || ''}"`,
+          `"${o.estado || 'Pendiente'}"`
         ];
         csvContent += fila.join(",") + "\n";
       });
@@ -1022,11 +1337,8 @@
       document.body.removeChild(link);
     }
 
-    // Ficha de Orden
-    function verDetalleOrden(idOrden) {
-      const orden = listaOrdenesGuardadas.find(o => o.id === idOrden);
-      if(!orden) return;
-
+    // Poblar y actualizar vista detallada
+    function poblarDetalleOrden(orden) {
       document.getElementById('det-id').innerText = orden.id;
       document.getElementById('det-fecha').innerText = orden.fecha || 'N/A';
       document.getElementById('det-cliente').innerText = orden.nombre_cliente || 'N/A';
@@ -1038,17 +1350,77 @@
       document.getElementById('det-color').innerText = orden.color || 'N/A';
       document.getElementById('det-mecanico').innerText = orden.mecanico || 'Sin asignar';
 
+      const esEntregado = (orden.estado || 'Pendiente').toLowerCase() === 'entregado';
+      const badgeHTML = esEntregado
+        ? '<span class="badge-estado badge-entregado">✅ Entregado</span>'
+        : '<span class="badge-estado badge-pendiente">⏳ En Taller (Pendiente)</span>';
+      
+      document.getElementById('det-badge-estado').innerHTML = badgeHTML;
+      document.getElementById('det-estado').innerHTML = badgeHTML;
+
+      // Actualizar botón de acción en detalle
+      const btnEntregar = document.getElementById('btn-entregar-detalle');
+      if (btnEntregar) {
+        if (esEntregado) {
+          btnEntregar.disabled = true;
+          btnEntregar.className = 'btn-secondary';
+          btnEntregar.innerHTML = '✅ Entregado';
+        } else {
+          btnEntregar.disabled = false;
+          btnEntregar.className = 'btn-success';
+          btnEntregar.innerHTML = 'Marcar como Entregado';
+        }
+      }
+
       document.getElementById('det-accesorios').innerText = orden.accesorios || 'Ninguno registrado';
       document.getElementById('det-fallas').innerText = orden.fallas || 'Sin descripción';
       document.getElementById('det-observaciones').innerText = orden.observaciones || 'Ninguna observación registrada';
+    }
 
+    // Ficha de Orden
+    function verDetalleOrden(idOrden) {
+      const orden = listaOrdenesGuardadas.find(o => o.id === idOrden);
+      if(!orden) return;
+      ordenActualSeleccionada = orden;
+      poblarDetalleOrden(orden);
       mostrarSeccion('seccion-detalle-orden');
     }
 
-    // Imprimir
+    // Imprimir Ficha de Orden completa
     function imprimirOrden() {
+      document.body.classList.remove('imprimiendo-ticket');
       window.print();
     }
+
+    // Imprimir Ticket para Cliente (Comprobante de Entrega)
+    function imprimirTicketCliente() {
+      if (!ordenActualSeleccionada) return;
+
+      document.getElementById('tc-id').innerText = ordenActualSeleccionada.id;
+      document.getElementById('tc-fecha').innerText = ordenActualSeleccionada.fecha || '';
+      document.getElementById('tc-cliente').innerText = ordenActualSeleccionada.nombre_cliente || 'N/A';
+      document.getElementById('tc-nit').innerText = ordenActualSeleccionada.nit || 'C/F';
+      document.getElementById('tc-telefono').innerText = ordenActualSeleccionada.telefono || 'N/A';
+      
+      document.getElementById('tc-placa').innerText = ordenActualSeleccionada.placa || 'N/A';
+      document.getElementById('tc-vehiculo').innerText = `${ordenActualSeleccionada.marca || ''} ${ordenActualSeleccionada.modelo || ''}`;
+      document.getElementById('tc-color').innerText = ordenActualSeleccionada.color || 'N/A';
+      document.getElementById('tc-mecanico').innerText = ordenActualSeleccionada.mecanico || 'Por asignar';
+
+      document.getElementById('tc-fallas').innerText = ordenActualSeleccionada.fallas || 'Revisión y servicio general';
+      document.getElementById('tc-accesorios').innerText = ordenActualSeleccionada.accesorios || 'Ninguno';
+
+      document.body.classList.add('imprimiendo-ticket');
+      window.print();
+      
+      setTimeout(() => {
+        document.body.classList.remove('imprimiendo-ticket');
+      }, 1000);
+    }
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('imprimiendo-ticket');
+    });
 
     function cerrarSesion() {
       usuarioActual = null;
@@ -1062,5 +1434,69 @@
         });
     }
   </script>
+
+  <!-- COMPROBANTE / TICKET PARA CLIENTE (IMPRIMIBLE) -->
+  <div id="ticket-cliente-contenedor">
+    <div class="ticket-recibo">
+      <div class="ticket-header">
+        <h2>🚘 SERVICIO MOTRIZ, S.A.</h2>
+        <p>3 Av. 12-23 Zona 9 - Tel: 2243-5667</p>
+        <div class="ticket-tipo">COMPROBANTE DE INGRESO / TICKET DE SERVICIO</div>
+        <div class="ticket-folio">ORDEN #<span id="tc-id"></span></div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Fecha: <span id="tc-fecha"></span></div>
+      </div>
+
+      <hr class="ticket-divider">
+
+      <div class="ticket-seccion">
+        <div class="ticket-titulo-sec">👤 DATOS DEL CLIENTE</div>
+        <div><strong>Cliente:</strong> <span id="tc-cliente"></span></div>
+        <div><strong>NIT:</strong> <span id="tc-nit"></span></div>
+        <div><strong>Teléfono:</strong> <span id="tc-telefono"></span></div>
+      </div>
+
+      <hr class="ticket-divider">
+
+      <div class="ticket-seccion">
+        <div class="ticket-titulo-sec">🚘 DATOS DEL VEHÍCULO</div>
+        <div style="font-size: 15px; margin-bottom: 2px;"><strong>Placa:</strong> <span id="tc-placa" style="background: #e2e8f0; padding: 1px 6px; border-radius: 4px; font-weight: bold;"></span></div>
+        <div><strong>Vehículo:</strong> <span id="tc-vehiculo"></span></div>
+        <div><strong>Color:</strong> <span id="tc-color"></span></div>
+        <div><strong>Mecánico Asignado:</strong> <span id="tc-mecanico"></span></div>
+      </div>
+
+      <hr class="ticket-divider">
+
+      <div class="ticket-seccion">
+        <div class="ticket-titulo-sec">🛠️ RESUMEN DEL TRABAJO</div>
+        <div><strong>Fallas Reportadas:</strong></div>
+        <div id="tc-fallas" style="margin-left: 6px; padding: 4px 0; color: #1e293b;"></div>
+        <div style="margin-top: 4px;"><strong>Accesorios Dejados:</strong></div>
+        <div id="tc-accesorios" style="margin-left: 6px; padding: 2px 0; color: #475569;"></div>
+      </div>
+
+      <div class="ticket-aviso">
+        ⚠️ <strong>AVISO IMPORTANTE AL CLIENTE:</strong><br>
+        Es <b>indispensable presentar este ticket</b> original al momento de retirar su vehículo del taller.
+        <br><small>Por su propia seguridad, no se entregará la unidad sin este comprobante.</small>
+      </div>
+
+      <div class="ticket-firmas">
+        <div class="ticket-firma-col">
+          <div class="linea-firma"></div>
+          <span>Firma del Cliente</span>
+        </div>
+        <div class="ticket-firma-col">
+          <div class="linea-firma"></div>
+          <span>Recepción del Taller</span>
+        </div>
+      </div>
+
+      <div style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 18px;">
+        ¡Gracias por confiar en Servicio Motriz, S.A.!
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

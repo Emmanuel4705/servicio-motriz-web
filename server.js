@@ -59,7 +59,8 @@ db.serialize(() => {
     mecanico TEXT,
     accesorios TEXT,
     fallas TEXT,
-    observaciones TEXT
+    observaciones TEXT,
+    estado TEXT DEFAULT 'Pendiente'
   )`);
 });
 
@@ -198,6 +199,42 @@ app.post('/api/ordenes', (req, res) => {
   });
 });
 
+
+// Endpoint: Actualizar estado de una orden (Marcar como Entregado / Pendiente)
+app.put('/api/ordenes/:id/estado', (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  const nuevoEstado = estado || 'Entregado';
+
+  const sql = `UPDATE ordenes SET estado = ? WHERE id = ?`;
+  db.run(sql, [nuevoEstado, id], function(err) {
+    if (err) return res.status(500).json({ exito: false, error: err.message });
+    if (this.changes === 0) return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada' });
+    res.json({ exito: true, mensaje: `Orden #${id} marcada como ${nuevoEstado} exitosamente` });
+  });
+});
+
+// Endpoint: Marcar orden como Entregada (PUT o POST)
+app.put('/api/ordenes/:id/entregar', (req, res) => {
+  const { id } = req.params;
+  const sql = `UPDATE ordenes SET estado = 'Entregado' WHERE id = ?`;
+  db.run(sql, [id], function(err) {
+    if (err) return res.status(500).json({ exito: false, error: err.message });
+    if (this.changes === 0) return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada' });
+    res.json({ exito: true, mensaje: `Orden #${id} marcada como Entregado exitosamente` });
+  });
+});
+
+app.post('/api/ordenes/:id/entregar', (req, res) => {
+  const { id } = req.params;
+  const sql = `UPDATE ordenes SET estado = 'Entregado' WHERE id = ?`;
+  db.run(sql, [id], function(err) {
+    if (err) return res.status(500).json({ exito: false, error: err.message });
+    if (this.changes === 0) return res.status(404).json({ exito: false, mensaje: 'Orden no encontrada' });
+    res.json({ exito: true, mensaje: `Orden #${id} marcada como Entregado exitosamente` });
+  });
+});
+
 // Endpoint: Obtener Órdenes
 app.get('/api/ordenes', (req, res) => {
   db.all(`SELECT * FROM ordenes ORDER BY id DESC`, [], (err, rows) => {
@@ -206,11 +243,12 @@ app.get('/api/ordenes', (req, res) => {
   });
 });
 
-// Endpoint: Conteo agrupado de vehículos por mecánico (Gráfica de pastel)
+// Endpoint: Conteo agrupado de vehículos por mecánico (Gráfica de pastel - Solo Pendientes)
 app.get('/api/grafica/vehiculos-mecanicos', (req, res) => {
   const sql = `
     SELECT COALESCE(NULLIF(TRIM(mecanico), ''), 'Sin asignar') AS mecanico, COUNT(*) AS total
     FROM ordenes
+    WHERE COALESCE(estado, 'Pendiente') != 'Entregado'
     GROUP BY mecanico
     ORDER BY total DESC
   `;
