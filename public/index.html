@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Servicio Motriz, S.A. - Control del Taller</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
       --primary: #1e293b;
@@ -679,7 +681,7 @@
     <div id="seccion-servicios" class="hidden">
       <h2>Historial de Órdenes y Servicios</h2>
       <button type="button" class="btn-secondary" onclick="mostrarSeccion('seccion-menu')" style="margin-bottom: 15px;">← Regresar al Menú</button>
-      <button type="button" class="btn-success" onclick="exportarCSV()" style="margin-bottom: 15px; margin-left: 10px;">📊 Exportar a Excel (CSV)</button>
+      <button type="button" class="btn-danger" onclick="exportarPDF()" style="margin-bottom: 15px; margin-left: 10px;">📄 Exportar a PDF</button>
       
       <!-- Gráfica de pastel: Vehículos asignados por mecánico -->
       <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; margin-bottom: 20px;">
@@ -1300,42 +1302,105 @@
       cambiarEstadoOrden(ordenActualSeleccionada.id, 'Entregado');
     }
 
-    // Exportar CSV incluyendo Estado
-    function exportarCSV() {
-      if (listaOrdenesGuardadas.length === 0) {
-        alert("No hay órdenes registradas para exportar.");
+    // Exportar Reporte a PDF con jsPDF y jsPDF-AutoTable
+    function exportarPDF() {
+      const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : window.jsPDF;
+      if (!jsPDFClass) {
+        alert("La librería jsPDF no está cargada. Por favor verifica tu conexión a internet.");
         return;
       }
 
-      let csvContent = "No. Orden,Fecha,Cliente,NIT,Telefono,Placa,Marca,Modelo,Color,Mecanico,Estado\n";
+      let ordenesAExportar = listaOrdenesGuardadas;
+      if (typeof filtroServiciosActual !== 'undefined') {
+        if (filtroServiciosActual === 'Pendiente') {
+          ordenesAExportar = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() !== 'entregado');
+        } else if (filtroServiciosActual === 'Entregado') {
+          ordenesAExportar = listaOrdenesGuardadas.filter(o => (o.estado || 'Pendiente').toLowerCase() === 'entregado');
+        }
+      }
 
-      listaOrdenesGuardadas.forEach(o => {
-        let fila = [
-          o.id,
-          o.fecha,
-          `"${o.nombre_cliente || ''}"`,
-          `"${o.nit || ''}"`,
-          `"${o.telefono || ''}"`,
-          `"${o.placa || ''}"`,
-          `"${o.marca || ''}"`,
-          `"${o.modelo || ''}"`,
-          `"${o.color || ''}"`,
-          `"${o.mecanico || ''}"`,
-          `"${o.estado || 'Pendiente'}"`
-        ];
-        csvContent += fila.join(",") + "\n";
+      if (!ordenesAExportar || ordenesAExportar.length === 0) {
+        alert("No hay órdenes registradas para exportar en esta lista.");
+        return;
+      }
+
+      const doc = new jsPDFClass({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+
+      // Encabezado del reporte
+      doc.setFontSize(18);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Servicio Motriz - Reporte de Servicios", 40, 45);
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      const fechaGeneracion = new Date().toLocaleString('es-GT', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      doc.text(`Fecha de generación: ${fechaGeneracion}`, 40, 62);
+
+      const filtroTexto = (typeof filtroServiciosActual !== 'undefined' && filtroServiciosActual !== 'Todos')
+        ? `Filtro: ${filtroServiciosActual}s`
+        : "Filtro: Todos los registros";
+      doc.text(`${filtroTexto} | Total de servicios listados: ${ordenesAExportar.length}`, 40, 76);
+
+      // Filas para la tabla
+      const filas = ordenesAExportar.map(o => [
+        `#${o.id}`,
+        o.fecha || 'N/A',
+        o.nombre_cliente || 'N/A',
+        `${o.placa || ''}\n${o.marca || ''} ${o.modelo || ''}`.trim(),
+        o.mecanico || 'Sin asignar',
+        o.fallas || o.observaciones || 'Servicio General',
+        (o.estado || 'Pendiente')
+      ]);
+
+      doc.autoTable({
+        startY: 90,
+        head: [['ID / Folio', 'Fecha', 'Cliente', 'Vehículo', 'Mecánico', 'Servicio', 'Estado']],
+        body: filas,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [37, 99, 235],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 10
+        },
+        bodyStyles: {
+          fontSize: 9,
+          textColor: [15, 23, 42]
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        columnStyles: {
+          0: { cellWidth: 65, fontStyle: 'bold' },
+          1: { cellWidth: 70 },
+          2: { cellWidth: 120 },
+          3: { cellWidth: 110 },
+          4: { cellWidth: 100 },
+          5: { cellWidth: 170 },
+          6: { cellWidth: 75, fontStyle: 'bold' }
+        },
+        didParseCell: function(data) {
+          if (data.section === 'body' && data.column.index === 6) {
+            const val = (data.cell.raw || '').toLowerCase();
+            if (val === 'entregado') {
+              data.cell.styles.textColor = [21, 128, 61];
+            } else {
+              data.cell.styles.textColor = [180, 83, 9];
+            }
+          }
+        },
+        margin: { left: 40, right: 40 }
       });
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "Historial_Servicio_Motriz.csv");
-      document.body.appendChild(link);
-      
-      link.click();
-      document.body.removeChild(link);
+      doc.save('Reporte_Servicios_Motriz.pdf');
+    }
+
+    // Alias retrocompatible
+    function exportarCSV() {
+      exportarPDF();
     }
 
     // Poblar y actualizar vista detallada
